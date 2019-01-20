@@ -1,0 +1,33 @@
+@receiver(pre_save, sender=models)
+def save_model(sender, **kwargs):
+    import paramiko
+    import time
+    import sys
+
+    try:
+
+        ip_list = address()
+        vendor_list = vendor()
+        username_list = username()
+        password_list = password()
+
+        username_access = username_list
+        password_access = password_list
+
+        r_mikrotik = action2()
+
+        for ip in ip_list:
+            ssh_client = paramiko.SSHClient()
+            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh_client.connect(hostname=ip, username=username_access, password=password_access)
+            print("Sukses Login ke {}".format(ip))
+            for config in r_mikrotik:
+                ssh_client.exec_command(config)
+                time.sleep(1)
+            print("Sukses Konfigurasi {}\n".format(ip))
+
+
+    except:
+        print("program sudah keluar")
+    sys.exit()
+
