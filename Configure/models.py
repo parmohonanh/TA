@@ -19,7 +19,7 @@ class Automation(models.Model):
     def hostname(self):
         return "\n".join([p.hostname for p in self.device.all()])
 
-    def action(self):
+    def Job(self):
         return "\n".join([p.Title for p in self.command.all()])
 
     def action2(self):
@@ -39,3 +39,4 @@ class Automation(models.Model):
 
     def __unicode__(self):
         return self.device
+
