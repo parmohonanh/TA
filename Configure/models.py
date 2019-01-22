@@ -16,6 +16,34 @@ class Automation(models.Model):
     device = models.ManyToManyField(Device)
     command = models.ManyToManyField(Command)
 
+    def run(sender, instance, **kwargs):
+        import paramiko
+        import time
+
+        ip_ok = ['10.10.10.100']
+        uname = ['user1']
+        pswd = ['user1']
+        cmnd =['ip service enable ftp']
+        try:
+            for ip in ip_ok:
+                print(ip)
+                ssh_client = paramiko.SSHClient()
+                print('bbbb')
+                ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                print('cccc')
+                ssh_client.connect(hostname=ip, username=uname, password=pswd)
+                print(uname)
+                print(pswd)
+                print("Sukses Login ke {}".format(ip))
+                for config in cmnd:
+                    print(config)
+                    ssh_client.exec_command(config)
+                    time.sleep(1)
+                print("Sukses Konfigurasi {}\n".format(ip))
+
+        except:
+            print("aaa")
+
     def hostname(self):
         return "\n".join([p.hostname for p in self.device.all()])
 
