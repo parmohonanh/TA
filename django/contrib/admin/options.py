@@ -614,6 +614,7 @@ class ModelAdmin(BaseModelAdmin):
             path('<path:object_id>/history/', wrap(self.history_view), name='%s_%s_history' % info),
             path('<path:object_id>/delete/', wrap(self.delete_view), name='%s_%s_delete' % info),
             path('<path:object_id>/change/', wrap(self.change_view), name='%s_%s_change' % info),
+
             # For backwards compatibility (was the change url before 1.9)
             path('<path:object_id>/', wrap(RedirectView.as_view(
                 pattern_name='%s:%s_%s_change' % ((self.admin_site.name,) + info)
@@ -1629,6 +1630,7 @@ class ModelAdmin(BaseModelAdmin):
         context.update(extra_context or {})
 
         return self.render_change_form(request, context, add=add, change=not add, obj=obj, form_url=form_url)
+
 
     def autocomplete_view(self, request):
         return AutocompleteJsonView.as_view(model_admin=self)(request)
