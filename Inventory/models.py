@@ -12,3 +12,5 @@ class Device(models.Model):
 
     def __str__(self):
         return self.hostname
+        return self.address
+

@@ -1,11 +1,10 @@
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+import paramiko
+import time
 from django.conf.urls import url
 from django.urls import reverse
 from django.utils.html import format_html
-
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
-
-from django.utils.safestring import mark_safe
 from django.contrib import admin
 from Configure.models import *
 
@@ -21,45 +20,52 @@ admin.site.register(Command, CommandAdmin)
 
 
 class AutomationAdmin(admin.ModelAdmin):
-    list_display = ['id','hostname', 'address','password', 'Job','Action']
+    list_display = ['id', 'hostname', 'address', 'password', 'Job', 'automation_action']
     list_filter = ()
     search_fields = ['hostname', 'address', 'action']
     list_per_page = 25
 
-    def Action(self,obj):
-        return format_html('<a class="button" href="{}">Run</a>',
-                           reverse('admin:Action',args=[obj.pk]),)
+
+    def automation_action(self, obj):
+        return format_html('<a href="{}">RUN</a>', reverse('admin:automation-account', args=[obj.pk]))
+    automation_action.short_description = 'Action'
+    automation_action.allow_tag=True
 
     def get_urls(self):
-        urls = super().get_urls()
+        urls =super().get_urls()
         custom_urls = [
             url(
-                r'^(?P<Automation_id>.+)/automation/$',
-                self.admin_site.admin_view(self.run),
-                name='Action',
+                r'^(?P<object_id>.+)/automation/$',
+                self.admin_site.admin_view(self.run_conf),
+                name='automation-account'
             )
         ]
         return custom_urls + urls
-    def run(sender, instance, **kwargs):
-        import paramiko
-        import time
 
-        ip_ok = ['10.10.10.100']
-        uname = ['user1']
-        pswd = ['user1']
-        cmnd =['ip service enable ftp']
+    def run_conf(self,obj,object_id):
+        ip_ok = Automation.objects.filter(command__automation__device=True)
+        ipip = list(ip_ok)
+        print(ipip)
+        uname = Automation.objects.values_list('device__hostname', flat=True)
+        print(uname)
+        pswd = Automation.objects.values_list('device__password', flat=True)
+        print(pswd)
+        cmmnd = Automation.objects.values_list('command__automation__command', flat=True)
+        print(cmmnd)
+        ven = Automation.objects.values_list('device__vendor', flat=True)
+        print(ven)
+
         try:
             for ip in ip_ok:
                 print(ip)
+                print(cmmnd)
                 ssh_client = paramiko.SSHClient()
                 print('bbbb')
                 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 print('cccc')
                 ssh_client.connect(hostname=ip, username=uname, password=pswd)
-                print(uname)
-                print(pswd)
                 print("Sukses Login ke {}".format(ip))
-                for config in cmnd:
+                for config in cmmnd:
                     print(config)
                     ssh_client.exec_command(config)
                     time.sleep(1)
@@ -67,7 +73,8 @@ class AutomationAdmin(admin.ModelAdmin):
 
         except:
             print("aaa")
-        return sender
+
+        return HttpResponseRedirect (url)
 
 def hostname(obj):
     return "\n".join([p.hostname for p in obj.devices.all()])
@@ -95,8 +102,6 @@ def username(obj):
 
 def password(obj):
     return "\n".join([p.password for p in obj.devices.all()])
-
-
 
 
 admin.site.register(Automation, AutomationAdmin)

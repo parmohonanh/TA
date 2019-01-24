@@ -615,6 +615,7 @@ class ModelAdmin(BaseModelAdmin):
             path('<path:object_id>/delete/', wrap(self.delete_view), name='%s_%s_delete' % info),
             path('<path:object_id>/change/', wrap(self.change_view), name='%s_%s_change' % info),
 
+
             # For backwards compatibility (was the change url before 1.9)
             path('<path:object_id>/', wrap(RedirectView.as_view(
                 pattern_name='%s:%s_%s_change' % ((self.admin_site.name,) + info)
