@@ -1,11 +1,10 @@
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
 import paramiko
 import time
 from django.conf.urls import url
+from django.http import HttpResponseRedirect, request
 from django.urls import reverse
 from django.utils.html import format_html
-from django.contrib import admin
+from django.contrib import admin, messages
 from Configure.models import *
 
 
@@ -20,7 +19,7 @@ admin.site.register(Command, CommandAdmin)
 
 
 class AutomationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'hostname', 'address', 'password', 'Job', 'automation_action']
+    list_display = ['id', 'hostname', 'address', 'Job', 'automation_action']
     list_filter = ()
     search_fields = ['hostname', 'address', 'action']
     list_per_page = 25
@@ -42,12 +41,12 @@ class AutomationAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    def run_conf(self,obj,object_id,*args,**kwargs):
+    def run_conf(self,request,object_id,*args,**kwargs):
         print(object_id)
         ip_ok = Automation.objects.values_list('device__address',flat=True).filter(id=object_id)
         uname = Automation.objects.values_list('device__username',flat=True).filter(id=object_id)
         pswd = Automation.objects.values_list('device__password',flat=True).filter(id=object_id)
-        cmmnd = ['system identity set name=Maju_Sidang' ]
+        cmmnd = Automation.objects.values_list('command__command',flat=True).filter(id=object_id)
 
 
         try:
@@ -65,10 +64,10 @@ class AutomationAdmin(admin.ModelAdmin):
                     ssh_client.exec_command(config)
                     time.sleep(1)
                 print("Sukses Konfigurasi {}\n".format(ip))
-
+            messages.add_message(request,messages.SUCCESS,'Konfigurasi Berhasil {} Perangkat')
         except Exception as e:
             print(e)
-
+            messages.add_message(request,messages.ERROR,'Konfigurasi Gagal')
         return HttpResponseRedirect('/Configure/automation',*args,**kwargs)
 
 def hostname(obj):
