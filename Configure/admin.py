@@ -42,28 +42,23 @@ class AutomationAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    def run_conf(self,obj,object_id):
-        ip_ok = Automation.objects.filter(command__automation__device=True)
-        ipip = list(ip_ok)
-        print(ipip)
-        uname = Automation.objects.values_list('device__hostname', flat=True)
-        print(uname)
-        pswd = Automation.objects.values_list('device__password', flat=True)
-        print(pswd)
-        cmmnd = Automation.objects.values_list('command__automation__command', flat=True)
-        print(cmmnd)
-        ven = Automation.objects.values_list('device__vendor', flat=True)
-        print(ven)
+    def run_conf(self,obj,object_id,*args,**kwargs):
+        print(object_id)
+        ip_ok = Automation.objects.values_list('device__address',flat=True).filter(id=object_id)
+        uname = Automation.objects.values_list('device__username',flat=True).filter(id=object_id)
+        pswd = Automation.objects.values_list('device__password',flat=True).filter(id=object_id)
+        cmmnd = ['system identity set name=Maju_Sidang' ]
+
 
         try:
-            for ip in ip_ok:
+            for ip,u,p in zip(ip_ok,uname,pswd):
                 print(ip)
                 print(cmmnd)
                 ssh_client = paramiko.SSHClient()
-                print('bbbb')
                 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                print('cccc')
-                ssh_client.connect(hostname=ip, username=uname, password=pswd)
+                print(u)
+                print(p)
+                ssh_client.connect(hostname=ip, username=u, password=p)
                 print("Sukses Login ke {}".format(ip))
                 for config in cmmnd:
                     print(config)
@@ -71,10 +66,10 @@ class AutomationAdmin(admin.ModelAdmin):
                     time.sleep(1)
                 print("Sukses Konfigurasi {}\n".format(ip))
 
-        except:
-            print("aaa")
+        except Exception as e:
+            print(e)
 
-        return HttpResponseRedirect (url)
+        return HttpResponseRedirect('/Configure/automation',*args,**kwargs)
 
 def hostname(obj):
     return "\n".join([p.hostname for p in obj.devices.all()])
