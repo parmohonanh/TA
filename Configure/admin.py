@@ -64,7 +64,7 @@ class AutomationAdmin(admin.ModelAdmin):
                     ssh_client.exec_command(config)
                     time.sleep(1)
                 print("Sukses Konfigurasi {}\n".format(ip))
-            messages.add_message(request,messages.SUCCESS,'Konfigurasi Berhasil {} Perangkat')
+            messages.add_message(request,messages.SUCCESS,'Konfigurasi Berhasil')
         except Exception as e:
             print(e)
             messages.add_message(request,messages.ERROR,'Konfigurasi Gagal')

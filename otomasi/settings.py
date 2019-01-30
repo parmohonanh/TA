@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django_apscheduler',
     'django_adminlte',
     'django_adminlte_theme',
     'django.contrib.admin',
@@ -42,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Inventory',
     'Configure',
-    'Schedule',
 ]
 APSCHEDULER_DATETIME_FORMAT =  "N j, Y, f:s a"  # Default
 

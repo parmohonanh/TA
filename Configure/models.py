@@ -6,7 +6,7 @@ from django.db import models
 
 class Command(models.Model):
     Title = models.CharField(max_length=100, null=True, unique=True)
-    command = models.CharField(max_length=50, null=True)
+    command = models.CharField(max_length=100, null=True)
 
     def __str__(self):
         return self.Title
